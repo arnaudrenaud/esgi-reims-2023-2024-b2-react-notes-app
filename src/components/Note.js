@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import "./Note.css";
 import { useEffect, useState } from "react";
 
-function Note() {
+function Note({ onSaveSuccess }) {
   const { id } = useParams();
 
   const [note, setNote] = useState(null);
@@ -12,6 +12,15 @@ function Note() {
     const response = await fetch(`/notes/${id}`);
     const data = await response.json();
     setNote(data);
+  }
+
+  async function saveNote() {
+    await fetch(`/notes/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(note),
+      headers: { "Content-Type": "application/json" },
+    });
+    onSaveSuccess();
   }
 
   useEffect(() => {
@@ -23,7 +32,13 @@ function Note() {
   }
 
   return (
-    <form className="Form">
+    <form
+      className="Form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        saveNote();
+      }}
+    >
       <input
         className="Note-editable Note-title"
         type="text"
